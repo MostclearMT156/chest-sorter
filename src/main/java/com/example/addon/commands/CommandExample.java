@@ -13,7 +13,7 @@ public class CommandExample extends Command {
      * The {@code name} parameter should be in kebab-case.
      */
     public CommandExample() {
-        super("example", "Sends a message.");
+        super("Chest-sorter", "Sends a message.");
     }
 
     @Override
@@ -25,7 +25,7 @@ public class CommandExample extends Command {
 
         builder.then(literal("name").then(argument("nameArgument", StringArgumentType.word()).executes(context -> {
             String argument = StringArgumentType.getString(context, "nameArgument");
-            info("hi, " + argument);
+            info("hi, " + argument + " от Garlotina chest-sorter");
             return SINGLE_SUCCESS;
         })));
     }
