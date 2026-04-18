@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "Chest-Sorter",
+  "id": "chest-sorter",
   "version": "${version}",
   "name": "Chest Sorter",
   "description": "A chest sorter addon for meteor",
@@ -14,11 +14,11 @@
   "environment": "client",
   "entrypoints": {
     "meteor": [
-      "com.example.addon.ChestSorter"
+      "com.example.addon.AddonTemplate"
     ]
   },
   "mixins": [
-    "chest-sorter.mixins.json"
+    "addon-template.mixins.json"
   ],
   "custom": {
     "meteor-client:color": "225,25,25",
