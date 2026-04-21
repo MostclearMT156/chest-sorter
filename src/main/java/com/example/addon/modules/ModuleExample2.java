@@ -28,6 +28,7 @@ import net.minecraft.block.enums.ChestType;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.Direction;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -148,26 +149,26 @@ public class ModuleExample2 extends Module {
             event.renderer.box(result.getBlockPos(), sideColor.get(), lineColor.get(), shapeMode.get(), 0);
         }
 
-            //Render chest highlight
-            if(!chests.isEmpty()){
-            for(BetterBlockPos chest:chests){
+        //Render chest highlight
+        if (!chests.isEmpty()) {
+            for (BetterBlockPos chest : chests) {
                 event.renderer.box(chest,
                     new SettingColor(255, 165, 0, 125),   // orange sides
                     new SettingColor(255, 165, 0, 125),  // orange outline
                     ShapeMode.Both,
                     0
                 );
-            }}
+            }
+        }
 
-            // Stop logic
+        // Stop logic
 //            if (!baritone.getBuilderProcess().isActive()) {
 //                if (keepActive.get()) {
 //                    baritone.getSelectionManager().removeSelection(baritone.getSelectionManager().getLastSelection());
 //                    status = Status.SEL_START;
 //                } else toggle();
 //            }
-        }
-
+    }
 
 
     private ArrayList<BetterBlockPos> findChestInSelection() {
@@ -201,16 +202,38 @@ public class ModuleExample2 extends Module {
 
                         BetterBlockPos chestPosToAdd = pos;
 
-                        // If it's a double chest, only add the "main" side
-                        if (type == ChestType.RIGHT) {
-                            System.out.println("Right chest type");
-                            // RIGHT chest is the "secondary" half → skip it
-                            continue;
+
+                        if (type == ChestType.SINGLE) {
+                            if (!chests.contains(chestPosToAdd)) {
+                                chests.add(chestPosToAdd);
+                            }
                         }
 
-                        // LEFT or SINGLE chest → add this position
-                        if (!chests.contains(chestPosToAdd)) {
-                            chests.add(chestPosToAdd);
+                        Direction facing = state.get(ChestBlock.FACING);
+                        BetterBlockPos otherHalf;
+
+                        if (type == ChestType.LEFT) {
+                            otherHalf = new BetterBlockPos(
+                                pos.getX() + facing.rotateYClockwise().getOffsetX(),
+                                pos.getY(),
+                                pos.getZ() + facing.rotateYClockwise().getOffsetZ()
+                            );
+                        } else {
+                            otherHalf = new BetterBlockPos(
+                                pos.getX() + facing.rotateYCounterclockwise().getOffsetX(),
+                                pos.getY(),
+                                pos.getZ() + facing.rotateYCounterclockwise().getOffsetZ()
+                            );
+                        }
+
+                        boolean otherInside =
+                            otherHalf.getX() >= minX && otherHalf.getX() <= maxX &&
+                            otherHalf.getY() >= minY && otherHalf.getY() <= maxY &&
+                            otherHalf.getZ() >= minZ && otherHalf.getZ() <= maxZ;
+                        if (!otherInside) continue;
+
+                        if (type == ChestType.LEFT) {
+                            if (!chests.contains(pos)) chests.add(pos);
                         }
                     }
                 }
@@ -223,12 +246,12 @@ public class ModuleExample2 extends Module {
         return chests;
     }
 
-    private int calculateSelectionVolume(){
+    private int calculateSelectionVolume() {
         if (start == null || end == null) return 0;
         int dx = Math.abs(end.getX() - start.getX()) + 1;
         int dy = Math.abs(end.getY() - start.getY()) + 1;
         int dz = Math.abs(end.getZ() - start.getZ()) + 1;
-        return dx*dy*dz;
+        return dx * dy * dz;
     }
 
 }
