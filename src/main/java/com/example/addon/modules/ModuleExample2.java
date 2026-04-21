@@ -21,13 +21,22 @@ import meteordevelopment.meteorclient.utils.misc.Keybind;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.*;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ChestBlockEntity;
+import net.minecraft.block.enums.ChestType;
+import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.hit.BlockHitResult;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
 
 public class ModuleExample2 extends Module {
     private final IBaritone baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRendering = settings.createGroup("Rendering");
+    private ArrayList<BetterBlockPos> chests = new ArrayList<>();
 
     // Keybindings
     private final Setting<Keybind> selectionBind = sgGeneral.add(new KeybindSetting.Builder()
@@ -114,6 +123,7 @@ public class ModuleExample2 extends Module {
         if (!(mc.crosshairTarget instanceof BlockHitResult result)) return;
 
         if (status == Status.SEL_START) {
+            baritone.getSelectionManager().removeSelection(baritone.getSelectionManager().getLastSelection());
             start = BetterBlockPos.from(result.getBlockPos());
             status = Status.SEL_END;
             if (logSelection.get()) {
@@ -121,26 +131,105 @@ public class ModuleExample2 extends Module {
             }
         } else if (status == Status.SEL_END) {
             end = BetterBlockPos.from(result.getBlockPos());
-            status = Status.WORKING;
+            status = Status.SEL_START;
             if (logSelection.get()) {
                 info("End corner set: (%d, %d, %d)".formatted(end.getX(), end.getY(), end.getZ()));
             }
             baritone.getSelectionManager().addSelection(start, end);
-            baritone.getBuilderProcess().clearArea(start, end);
+            //baritone.getBuilderProcess().clearArea(start, end);
+            chests = findChestInSelection();
         }
     }
 
     @EventHandler
     private void onRender3D(Render3DEvent event) {
-        if (status == Status.SEL_START || status == Status.SEL_END) {
+        if (status == Status.SEL_START || status == Status.SEL_END || isActive()) {
             if (!(mc.crosshairTarget instanceof BlockHitResult result)) return;
             event.renderer.box(result.getBlockPos(), sideColor.get(), lineColor.get(), shapeMode.get(), 0);
-        } else if (status == Status.WORKING && !baritone.getBuilderProcess().isActive()) {
-            if (keepActive.get()) {
-                baritone.getSelectionManager().removeSelection(baritone.getSelectionManager().getLastSelection());
-                status = Status.SEL_START;
-            } else toggle();
         }
+
+            //Render chest highlight
+            if(!chests.isEmpty()){
+            for(BetterBlockPos chest:chests){
+                event.renderer.box(chest,
+                    new SettingColor(255, 165, 0, 125),   // orange sides
+                    new SettingColor(255, 165, 0, 125),  // orange outline
+                    ShapeMode.Both,
+                    0
+                );
+            }}
+
+            // Stop logic
+//            if (!baritone.getBuilderProcess().isActive()) {
+//                if (keepActive.get()) {
+//                    baritone.getSelectionManager().removeSelection(baritone.getSelectionManager().getLastSelection());
+//                    status = Status.SEL_START;
+//                } else toggle();
+//            }
+        }
+
+
+
+    private ArrayList<BetterBlockPos> findChestInSelection() {
+        chests.clear();
+        if (start == null || end == null) return chests;
+        int minX = Math.min(start.getX(), end.getX());
+        int minY = Math.min(start.getY(), end.getY());
+        int minZ = Math.min(start.getZ(), end.getZ());
+        int maxX = Math.max(start.getX(), end.getX());
+        int maxY = Math.max(start.getY(), end.getY());
+        int maxZ = Math.max(start.getZ(), end.getZ());
+        int dx = Math.abs(end.getX() - start.getX()) + 1;
+        int dy = Math.abs(end.getY() - start.getY()) + 1;
+        int dz = Math.abs(end.getZ() - start.getZ()) + 1;
+        int area = calculateSelectionVolume();
+        for (int i = 0; i < area; i++) {
+            for (int x = minX; x <= maxX; x++) {
+                for (int y = minY; y <= maxY; y++) {
+                    for (int z = minZ; z <= maxZ; z++) {
+                        BetterBlockPos pos = new BetterBlockPos(x, y, z);
+                        BlockState state = mc.world.getBlockState(pos);
+
+                        if (!(state.getBlock() instanceof ChestBlock chestBlock)) continue;
+
+                        // Get chest block entity
+                        BlockEntity be = mc.world.getBlockEntity(pos);
+                        if (!(be instanceof ChestBlockEntity chestEntity)) continue;
+
+                        // Determine if this is LEFT, RIGHT, or SINGLE
+                        ChestType type = chestEntity.getCachedState().get(ChestBlock.CHEST_TYPE);
+
+                        BetterBlockPos chestPosToAdd = pos;
+
+                        // If it's a double chest, only add the "main" side
+                        if (type == ChestType.RIGHT) {
+                            System.out.println("Right chest type");
+                            // RIGHT chest is the "secondary" half → skip it
+                            continue;
+                        }
+
+                        // LEFT or SINGLE chest → add this position
+                        if (!chests.contains(chestPosToAdd)) {
+                            chests.add(chestPosToAdd);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (BetterBlockPos chest : chests) {
+            System.out.println("List of chests: " + chest);
+        }
+        return chests;
     }
+
+    private int calculateSelectionVolume(){
+        if (start == null || end == null) return 0;
+        int dx = Math.abs(end.getX() - start.getX()) + 1;
+        int dy = Math.abs(end.getY() - start.getY()) + 1;
+        int dz = Math.abs(end.getZ() - start.getZ()) + 1;
+        return dx*dy*dz;
+    }
+
 }
 
