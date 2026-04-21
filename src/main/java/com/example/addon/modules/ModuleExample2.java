@@ -55,6 +55,13 @@ public class ModuleExample2 extends Module {
         .build()
     );
 
+    private final Setting<Boolean> clearSelection = sgGeneral.add(new BoolSetting.Builder()
+        .name("clear-selection")
+        .description("Clears the selection of chests")
+            .onChanged((v) -> resetSelection())
+        .build()
+    );
+
     private final Setting<Boolean> keepActive = sgGeneral.add(new BoolSetting.Builder()
         .name("keep-active")
         .description("Keep the module active after finishing the excavation.")
@@ -90,8 +97,16 @@ public class ModuleExample2 extends Module {
         WORKING
     }
 
+
+
     private Status status = Status.SEL_START;
     private BetterBlockPos start, end;
+
+    private void resetSelection(){
+        chests.clear();
+        baritone.getSelectionManager().removeAllSelections();
+
+    }
 
     public ModuleExample2() {
         super(AddonTemplate.CATEGORY, "excavator", "Excavate a selection area.");
@@ -124,7 +139,6 @@ public class ModuleExample2 extends Module {
         if (!(mc.crosshairTarget instanceof BlockHitResult result)) return;
 
         if (status == Status.SEL_START) {
-            baritone.getSelectionManager().removeSelection(baritone.getSelectionManager().getLastSelection());
             start = BetterBlockPos.from(result.getBlockPos());
             status = Status.SEL_END;
             if (logSelection.get()) {
@@ -172,8 +186,7 @@ public class ModuleExample2 extends Module {
 
 
     private ArrayList<BetterBlockPos> findChestInSelection() {
-        chests.clear();
-        if (start == null || end == null) return chests;
+        if (start == null || end == null) return new ArrayList<BetterBlockPos>();
         int minX = Math.min(start.getX(), end.getX());
         int minY = Math.min(start.getY(), end.getY());
         int minZ = Math.min(start.getZ(), end.getZ());
