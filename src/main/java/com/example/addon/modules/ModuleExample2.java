@@ -28,6 +28,7 @@ import net.minecraft.block.enums.ChestType;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.lwjgl.glfw.GLFW;
 
@@ -37,7 +38,7 @@ public class ModuleExample2 extends Module {
     private final IBaritone baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRendering = settings.createGroup("Rendering");
-    private ArrayList<BetterBlockPos> chests = new ArrayList<>();
+    private ArrayList<BetterBlockPos> chests = new ArrayList<BetterBlockPos>();
 
     // Keybindings
     private final Setting<Keybind> selectionBind = sgGeneral.add(new KeybindSetting.Builder()
@@ -58,6 +59,7 @@ public class ModuleExample2 extends Module {
     private final Setting<Boolean> clearSelection = sgGeneral.add(new BoolSetting.Builder()
         .name("clear-selection")
         .description("Clears the selection of chests")
+            .defaultValue(false)
             .onChanged((v) -> resetSelection())
         .build()
     );
@@ -202,12 +204,13 @@ public class ModuleExample2 extends Module {
                 for (int y = minY; y <= maxY; y++) {
                     for (int z = minZ; z <= maxZ; z++) {
                         BetterBlockPos pos = new BetterBlockPos(x, y, z);
-                        BlockState state = mc.world.getBlockState(pos);
+                        BlockPos mcPos = new BlockPos(pos);
+                        BlockState state = mc.world.getBlockState(mcPos);
 
                         if (!(state.getBlock() instanceof ChestBlock chestBlock)) continue;
 
                         // Get chest block entity
-                        BlockEntity be = mc.world.getBlockEntity(pos);
+                        BlockEntity be = mc.world.getBlockEntity(mcPos);
                         if (!(be instanceof ChestBlockEntity chestEntity)) continue;
 
                         // Determine if this is LEFT, RIGHT, or SINGLE
