@@ -15,19 +15,18 @@ import java.util.ArrayList;
 
 public class SelScanner {
 
-    public static void setChests(ArrayList<BetterBlockPos> chests) {
-        SelScanner.chests = chests;
-    }
-
-    public static ArrayList<BetterBlockPos> getChests() {
-        return chests;
-    }
-
-    public static void clearChests(){
-        chests.clear();
-    }
-
     static ArrayList<BetterBlockPos> chests = new ArrayList<>();
+
+    public static int getDoubleChests() {
+        return doubleChests;
+    }
+
+    public static int getSingleChests() {
+        return singleChests;
+    }
+
+    static int doubleChests = 0;
+    static int singleChests = 0;
 
     public static int calculateSelectionVolume(BetterBlockPos start, BetterBlockPos end) {
         if (start == null || end == null) return 0;
@@ -39,6 +38,8 @@ public class SelScanner {
 
     public static ArrayList<BetterBlockPos> findChestInSelection(MinecraftClient mc, BetterBlockPos start, BetterBlockPos end) {
         ArrayList<BetterBlockPos> result = new ArrayList<>();
+        doubleChests = 0;
+        singleChests = 0;
         if (start == null || end == null) return result;
         int minX = Math.min(start.getX(), end.getX());
         int minY = Math.min(start.getY(), end.getY());
@@ -70,6 +71,7 @@ public class SelScanner {
                         if (type == ChestType.SINGLE) {
                             if (!result.contains(chestPosToAdd)) {
                                 result.add(chestPosToAdd);
+                                singleChests++;
                             }
                         }
 
@@ -97,7 +99,10 @@ public class SelScanner {
                         if (!otherInside) continue;
 
                         if (type == ChestType.LEFT) {
-                            if (!result.contains(pos)) result.add(pos);
+                            if (!result.contains(pos)){
+                                result.add(pos);
+                                doubleChests++;
+                            }
                         }
                     }
                 }

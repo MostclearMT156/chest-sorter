@@ -42,6 +42,7 @@ public class ChestSorter extends Module {
     private ISelection[] selectionsIN = new ISelection[0];
     private ISelection[] selectionsOUT = new ISelection[0];
 
+    private ArrayList<BetterBlockPos> chests = new ArrayList<>();
     private ArrayList<BetterBlockPos> chestsIN = new ArrayList<>();
     private ArrayList<BetterBlockPos> chestsOUT = new ArrayList<>();
 
@@ -109,7 +110,7 @@ public class ChestSorter extends Module {
     private BetterBlockPos start, end;
 
     private void resetSelection() {
-        SelScanner.clearChests();
+        chests.clear();
         baritone.getSelectionManager().removeAllSelections();
     }
 
@@ -130,8 +131,8 @@ public class ChestSorter extends Module {
             baritone.getSelectionManager().removeAllSelections();
             selections = selectionsOUT;
             revealSelections();
-            chestsIN = SelScanner.getChests();
-            SelScanner.setChests(chestsOUT);
+            chestsIN = chests;
+            chests = chestsOUT;
             selection = Selection.OUT;
             if (logSelection.get()) {
                 info("Selection Mode OUT");
@@ -141,8 +142,8 @@ public class ChestSorter extends Module {
             baritone.getSelectionManager().removeAllSelections();
             selections = selectionsIN;
             revealSelections();
-            chestsOUT = SelScanner.getChests();
-            SelScanner.setChests(chestsIN);
+            chestsOUT = chests;
+            chests = chestsIN;
             selections = selectionsIN;
             selection = Selection.IN;
             if (logSelection.get()) {
@@ -197,7 +198,7 @@ public class ChestSorter extends Module {
         list.add(hl);
 
         WTable table = new WTable();
-        if (!SelScanner.getChests().isEmpty()) list.add(table);
+        if (!chests.isEmpty()) list.add(table);
 
         clear.action = () -> {
             resetSelection();
@@ -227,7 +228,7 @@ public class ChestSorter extends Module {
             }
             baritone.getSelectionManager().addSelection(start, end);
             //baritone.getBuilderProcess().clearArea(start, end);
-            SelScanner.findChestInSelection(mc, start, end);
+            chests = SelScanner.findChestInSelection(mc, start, end);
         }
     }
 
@@ -239,8 +240,8 @@ public class ChestSorter extends Module {
         }
 
         //Render chest highlight
-        if (!SelScanner.getChests().isEmpty() && isActive()) {
-            for (BetterBlockPos chest : SelScanner.getChests()) {
+        if (!chests.isEmpty() && isActive()) {
+            for (BetterBlockPos chest : chests) {
                 event.renderer.box(chest,
                     new SettingColor(255, 165, 0, 125),   // orange sides
                     new SettingColor(255, 165, 0, 125),  // orange outline
@@ -253,7 +254,7 @@ public class ChestSorter extends Module {
 
     @Override
     public String getInfoString() {
-        return Integer.toString(SelScanner.getChests().size());
+        return Integer.toString(chests.size());
     }
 }
 
