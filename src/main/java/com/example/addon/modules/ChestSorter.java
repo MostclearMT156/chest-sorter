@@ -8,11 +8,18 @@ package com.example.addon.modules;
 
 import baritone.api.BaritoneAPI;
 import baritone.api.IBaritone;
+import baritone.api.selection.ISelection;
 import baritone.api.utils.BetterBlockPos;
 import com.example.addon.AddonTemplate;
 import meteordevelopment.meteorclient.events.meteor.KeyEvent;
 import meteordevelopment.meteorclient.events.meteor.MouseClickEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.gui.GuiTheme;
+import meteordevelopment.meteorclient.gui.widgets.WWidget;
+import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
+import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
+import meteordevelopment.meteorclient.gui.widgets.containers.WVerticalList;
+import meteordevelopment.meteorclient.gui.widgets.pressable.WButton;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Module;
@@ -20,15 +27,24 @@ import meteordevelopment.meteorclient.utils.misc.Keybind;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.block.*;
 import net.minecraft.util.hit.BlockHitResult;
 import org.lwjgl.glfw.GLFW;
 
 import com.example.addon.utils.*;
 
+import java.util.ArrayList;
 
-public class ModuleExample2 extends Module {
+
+public class ChestSorter extends Module {
     private final IBaritone baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
+
+    private ISelection[] selections = new ISelection[0];
+    private ISelection[] selectionsIN = new ISelection[0];
+    private ISelection[] selectionsOUT = new ISelection[0];
+
+    private ArrayList<BetterBlockPos> chestsIN = new ArrayList<>();
+    private ArrayList<BetterBlockPos> chestsOUT = new ArrayList<>();
+
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRendering = settings.createGroup("Rendering");
 
@@ -48,13 +64,6 @@ public class ModuleExample2 extends Module {
         .build()
     );
 
-    private final Setting<Boolean> clearSelection = sgGeneral.add(new BoolSetting.Builder()
-        .name("clear-selection")
-        .description("Clears the selection of chests")
-            .defaultValue(false)
-            .onChanged((v) -> resetSelection())
-        .build()
-    );
 
     private final Setting<Boolean> keepActive = sgGeneral.add(new BoolSetting.Builder()
         .name("keep-active")
@@ -90,25 +99,73 @@ public class ModuleExample2 extends Module {
         SEL_END
     }
 
+    private enum Selection{
+        IN,
+        OUT
+    }
 
-
+    private Selection selection = Selection.IN;
     private Status status = Status.SEL_START;
     private BetterBlockPos start, end;
 
-    private void resetSelection(){
+    private void resetSelection() {
         SelScanner.clearChests();
         baritone.getSelectionManager().removeAllSelections();
     }
 
-    public ModuleExample2() {
-        super(AddonTemplate.CATEGORY, "excavator", "Extract all all items out of stash and move to sorted storage");
+    private void hideSelections() {
+            selections = baritone.getSelectionManager().getSelections();
+            baritone.getSelectionManager().removeAllSelections();
+    }
+
+    private void revealSelections(){
+        for (ISelection selection : selections) {
+            baritone.getSelectionManager().addSelection(selection);
+        }
+    }
+
+    private void toggleSelections(){
+        if (selection == Selection.IN) {
+            selectionsIN = baritone.getSelectionManager().getSelections();
+            baritone.getSelectionManager().removeAllSelections();
+            selections = selectionsOUT;
+            revealSelections();
+            chestsIN = SelScanner.getChests();
+            SelScanner.setChests(chestsOUT);
+            selection = Selection.OUT;
+            if (logSelection.get()) {
+                info("Selection Mode OUT");
+            }
+        } else if (selection == Selection.OUT) {
+            selectionsOUT = baritone.getSelectionManager().getSelections();
+            baritone.getSelectionManager().removeAllSelections();
+            selections = selectionsIN;
+            revealSelections();
+            chestsOUT = SelScanner.getChests();
+            SelScanner.setChests(chestsIN);
+            selections = selectionsIN;
+            selection = Selection.IN;
+            if (logSelection.get()) {
+                info("Selection Mode IN");
+            }
+        }
+    }
+
+    public ChestSorter() {
+        super(AddonTemplate.CATEGORY, "Chest-sorter", "Extract all all items out of stash and move to sorted storage");
     }
 
     @Override
     public void onDeactivate() {
-        resetSelection();
+        hideSelections();
         if (baritone.getBuilderProcess().isActive()) baritone.getCommandManager().execute("stop");
         status = Status.SEL_START;
+    }
+
+    @Override
+    public void onActivate() {
+        super.onActivate();
+        revealSelections();
     }
 
     @EventHandler
@@ -125,6 +182,32 @@ public class ModuleExample2 extends Module {
             return;
         }
         selectCorners();
+    }
+
+    @Override
+    public WWidget getWidget(GuiTheme theme) {
+
+        WVerticalList list = theme.verticalList();
+
+        // Clear buttons
+        WHorizontalList hl = theme.horizontalList();
+        WButton clear = hl.add(theme.button("Clear Selection")).widget();
+        WButton toggleSelection = hl.add(theme.button("Toggle IN/OUT Selection")).widget();
+
+        list.add(hl);
+
+        WTable table = new WTable();
+        if (!SelScanner.getChests().isEmpty()) list.add(table);
+
+        clear.action = () -> {
+            resetSelection();
+            table.clear();
+        };
+
+        toggleSelection.action = this::toggleSelections;
+
+
+        return list;
     }
 
     private void selectCorners() {
@@ -144,7 +227,7 @@ public class ModuleExample2 extends Module {
             }
             baritone.getSelectionManager().addSelection(start, end);
             //baritone.getBuilderProcess().clearArea(start, end);
-            SelScanner.findChestInSelection(mc,start,end);
+            SelScanner.findChestInSelection(mc, start, end);
         }
     }
 
@@ -156,7 +239,7 @@ public class ModuleExample2 extends Module {
         }
 
         //Render chest highlight
-        if (!SelScanner.getChests().isEmpty()) {
+        if (!SelScanner.getChests().isEmpty() && isActive()) {
             for (BetterBlockPos chest : SelScanner.getChests()) {
                 event.renderer.box(chest,
                     new SettingColor(255, 165, 0, 125),   // orange sides
@@ -166,6 +249,11 @@ public class ModuleExample2 extends Module {
                 );
             }
         }
+    }
+
+    @Override
+    public String getInfoString() {
+        return Integer.toString(SelScanner.getChests().size());
     }
 }
 

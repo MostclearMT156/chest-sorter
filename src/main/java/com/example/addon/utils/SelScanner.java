@@ -15,6 +15,10 @@ import java.util.ArrayList;
 
 public class SelScanner {
 
+    public static void setChests(ArrayList<BetterBlockPos> chests) {
+        SelScanner.chests = chests;
+    }
+
     public static ArrayList<BetterBlockPos> getChests() {
         return chests;
     }
