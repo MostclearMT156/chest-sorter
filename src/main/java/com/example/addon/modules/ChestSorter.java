@@ -11,6 +11,9 @@ import baritone.api.IBaritone;
 import baritone.api.selection.ISelection;
 import baritone.api.utils.BetterBlockPos;
 import com.example.addon.AddonTemplate;
+import com.example.addon.baritone.BaritoneController;
+import com.example.addon.database.ChestDatabase;
+import com.example.addon.scanner.ChestScanner;
 import meteordevelopment.meteorclient.events.meteor.KeyEvent;
 import meteordevelopment.meteorclient.events.meteor.MouseClickEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
@@ -28,6 +31,7 @@ import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import org.lwjgl.glfw.GLFW;
 
 import com.example.addon.utils.*;
@@ -37,6 +41,10 @@ import java.util.ArrayList;
 
 public class ChestSorter extends Module {
     private final IBaritone baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
+
+    private BaritoneController baritoneEng = new BaritoneController();
+    private ChestDatabase chestDatabase = new ChestDatabase();
+    private ChestScanner chestScanner = new ChestScanner(chestDatabase,baritoneEng);
 
     private ISelection[] selections = new ISelection[0];
     private ISelection[] selectionsIN = new ISelection[0];
@@ -204,7 +212,6 @@ public class ChestSorter extends Module {
             resetSelection();
             table.clear();
         };
-
         toggleSelection.action = this::toggleSelections;
 
 
@@ -228,7 +235,7 @@ public class ChestSorter extends Module {
             }
             baritone.getSelectionManager().addSelection(start, end);
             //baritone.getBuilderProcess().clearArea(start, end);
-            chests = SelScanner.findChestInSelection(mc, start, end);
+            chests.addAll(SelScanner.findChestInSelection(mc, start, end));
         }
     }
 
