@@ -1,31 +1,49 @@
 package com.example.addon.baritone;
 
 
+import baritone.Baritone;
 import baritone.api.BaritoneAPI;
+import baritone.api.IBaritone;
+import baritone.api.pathing.goals.Goal;
 import baritone.api.pathing.goals.GoalBlock;
+import baritone.api.utils.IPlayerContext;
+import baritone.api.utils.Rotation;
+import baritone.api.utils.RotationUtils;
 import baritone.api.utils.input.Input;
 
+import baritone.utils.player.BaritonePlayerContext;
 import net.minecraft.block.Block;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.bar.Bar;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
+import java.util.Optional;
+
 /**
  * Контроллер Baritone.
  * Отвечает за:
- *  - навигацию к сундуку
- *  - открытие сундука
- *  - взаимодействие с блоками
- *
+ * - навигацию к сундуку
+ * - открытие сундука
+ * - взаимодействие с блоками
+ * <p>
  * Используется ChestScanner.
  */
 public class BaritoneController {
 
     private final MinecraftClient mc = MinecraftClient.getInstance();
+    BlockPos pos;
+    IBaritone baritone;
+
+    public BaritoneController(IBaritone baritone) {
+        this.baritone = baritone;
+    }
 
     /**
      * Навигация к указанной точке.
@@ -33,27 +51,34 @@ public class BaritoneController {
      */
     public boolean navigateTo(BlockPos pos) {
         if (mc.player == null) return false;
+        this.pos = pos;
 
         try {
-            System.out.println("Got primary process");
-            var baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
-            var pathing = baritone.getCustomGoalProcess();
-
-            pathing.setGoalAndPath(new GoalBlock(pos.up(1)));
-
-            System.out.println("Waiting until baritone stops pathing");
-            // Wait until Baritone stops pathing
-            System.out.println("finished waiting");
-            System.out.println("reached the goal");
-            // SUCCESS = Baritone reached the goal → goal becomes null
-            return pathing.getGoal() == null || pathing.getGoal().isInGoal(mc.player.getBlockPos());
+//            System.out.println("Got primary process");
+//            var baritone = this.baritone.getProvider().getPrimaryBaritone();
+//            var pathing = baritone.getCustomGoalProcess();
+//
+//            pathing.setGoalAndPath(new GoalBlock(pos));
+//
+//            System.out.println("Waiting until baritone stops pathing");
+//            // Wait until Baritone stops pathing
+//            System.out.println("finished waiting");
+//            System.out.println("reached the goal");
+//            // SUCCESS = Baritone reached the goal → goal becomes null
+//            return pathing.getGoal() == null;
 
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+        return false;
     }
 
+    public boolean isInGoal() {
+        BlockPos temp = pos;
+        pos = null;
+        return temp == mc.player.getBlockPos();
+    }
 
 
     /**
@@ -61,6 +86,7 @@ public class BaritoneController {
      * Возвращает true, если сундук успешно открыт.
      */
     public boolean openChest(BlockPos pos) {
+        System.out.println("running chest method, called from inside the method");
         if (mc.player == null || mc.world == null) return false;
 
         Block block = mc.world.getBlockState(pos).getBlock();
@@ -68,9 +94,8 @@ public class BaritoneController {
 
         // Наводим камеру на сундук
         lookAt(pos);
-
         // Кликаем ПКМ
-        return rightClickBlock(pos);
+        return rightClick(pos);
     }
 
     /**
@@ -118,6 +143,35 @@ public class BaritoneController {
         }
     }
 
+    public boolean rightClick(BlockPos pos) {
+        IPlayerContext ctx = this.baritone.getPlayerContext();
+        Optional<Rotation> reachable = RotationUtils.reachable(ctx, pos, ctx.playerController().getBlockReachDistance());
+        if (reachable.isPresent()) {
+            System.out.println("Is reachable: true");
+            baritone.getLookBehavior().updateTarget(reachable.get(), true);
+            //if (pos.equals(ctx.getSelectedBlock().orElse(null))) {
+            baritone.getInputOverrideHandler().setInputForceState(Input.CLICK_RIGHT, true);// TODO find some way to right click even if we're in an ESC menu
+            boolean running = true;
+            while (running) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (!(mc.currentScreen == null)) {
+                    System.out.println("getInventory not null");
+                    baritone.getInputOverrideHandler().clearAllKeys();
+                    return true;
+                }
+            }
+
+            //}
+            return false;
+        }
+        return false;
+    }
+
+
     /**
      * Принудительно останавливает Baritone.
      */
@@ -125,6 +179,7 @@ public class BaritoneController {
         try {
             var baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
             baritone.getPathingBehavior().cancelEverything();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 }
