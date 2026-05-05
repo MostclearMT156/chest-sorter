@@ -23,6 +23,8 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
+import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 import java.util.Optional;
 
@@ -37,7 +39,6 @@ import java.util.Optional;
  */
 public class BaritoneController {
 
-    private final MinecraftClient mc = MinecraftClient.getInstance();
     BlockPos pos;
     IBaritone baritone;
 
@@ -93,7 +94,7 @@ public class BaritoneController {
         if (!(block instanceof ChestBlock)) return false;
 
         // Наводим камеру на сундук
-        lookAt(pos);
+        //lookAt(pos);
         // Кликаем ПКМ
         return rightClick(pos);
     }
@@ -101,21 +102,23 @@ public class BaritoneController {
     /**
      * Поворачивает камеру игрока к указанному блоку.
      */
-    private void lookAt(BlockPos pos) {
-        ClientPlayerEntity player = mc.player;
-        if (player == null) return;
+    public static Direction lookAt(BlockPos pos) {
+        double eyePos = mc.player.getY() + mc.player.getEyeHeight(mc.player.getPose());
+        VoxelShape outline = mc.world.getBlockState(pos).getCollisionShape(mc.world, pos);
 
-        double dx = pos.getX() + 0.5 - player.getX();
-        double dy = pos.getY() + 0.5 - (player.getY() + player.getEyeHeight(player.getPose()));
-        double dz = pos.getZ() + 0.5 - player.getZ();
+        if (eyePos > pos.getY() + outline.getMax(Direction.Axis.Y) && mc.world.getBlockState(pos.up()).isReplaceable()) {
+            return Direction.UP;
+        } else if (eyePos < pos.getY() + outline.getMin(Direction.Axis.Y) && mc.world.getBlockState(pos.down()).isReplaceable()) {
+            return Direction.DOWN;
+        } else {
+            BlockPos difference = pos.subtract(mc.player.getBlockPos());
 
-        double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-        float yaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90);
-        float pitch = (float) -Math.toDegrees(Math.asin(dy / dist));
-
-        player.setYaw(yaw);
-        player.setPitch(pitch);
+            if (Math.abs(difference.getX()) > Math.abs(difference.getZ())) {
+                return difference.getX() > 0 ? Direction.WEST : Direction.EAST;
+            } else {
+                return difference.getZ() > 0 ? Direction.NORTH : Direction.SOUTH;
+            }
+        }
     }
 
     /**
@@ -169,6 +172,16 @@ public class BaritoneController {
             return false;
         }
         return false;
+    }
+
+    public boolean escape(){
+        mc.currentScreen.close();
+        return true;
+    }
+
+    public boolean closeChest(){
+        escape();
+        return true;
     }
 
 

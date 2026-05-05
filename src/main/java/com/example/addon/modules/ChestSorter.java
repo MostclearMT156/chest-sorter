@@ -9,18 +9,16 @@ package com.example.addon.modules;
 import baritone.api.BaritoneAPI;
 import baritone.api.IBaritone;
 import baritone.api.pathing.goals.GoalBlock;
-import baritone.api.process.ICustomGoalProcess;
 import baritone.api.selection.ISelection;
 import baritone.api.utils.BetterBlockPos;
-import baritone.api.utils.BlockOptionalMeta;
 import com.example.addon.AddonTemplate;
 import com.example.addon.baritone.BaritoneController;
-import com.example.addon.database.ChestDatabase;
-import com.example.addon.scanner.ChestScanner;
+import com.example.addon.baritone.GetToBlockPathing;
 import meteordevelopment.meteorclient.events.meteor.KeyEvent;
 import meteordevelopment.meteorclient.events.meteor.MouseClickEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.gui.GuiTheme;
+import meteordevelopment.meteorclient.gui.widgets.WLabel;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
 import meteordevelopment.meteorclient.gui.widgets.containers.WTable;
@@ -33,9 +31,7 @@ import meteordevelopment.meteorclient.utils.misc.Keybind;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.block.Block;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
 import org.lwjgl.glfw.GLFW;
 
 import com.example.addon.utils.*;
@@ -47,8 +43,7 @@ public class ChestSorter extends Module {
     private final IBaritone baritone = BaritoneAPI.getProvider().getPrimaryBaritone();
 
     public BaritoneController baritoneEng = new BaritoneController(baritone);
-    private ChestDatabase chestDatabase = new ChestDatabase();
-    private ChestScanner chestScanner = new ChestScanner(chestDatabase, baritoneEng);
+    public GetToBlockPathing getToBlockPathing = new GetToBlockPathing(baritone);
 
     private ISelection[] selections = new ISelection[0];
     private ISelection[] selectionsIN = new ISelection[0];
@@ -61,7 +56,7 @@ public class ChestSorter extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
     private final SettingGroup sgRendering = settings.createGroup("Rendering");
 
-    private boolean startMovement = false;
+    private boolean scanChests = false;
     private boolean moving = false;
 
     // Keybindings
@@ -140,38 +135,60 @@ public class ChestSorter extends Module {
         }
     }
 
-    private void startMovement() {
-        if (startMovement) {
-            try {
-                info("Thread launched, waiting for navigateto to finish player feet");
-                BaritoneAPI.getSettings().allowBreak.value = false;
-                baritone.getCustomGoalProcess().setGoalAndPath(new GoalBlock(chestsIN.getFirst().above()));
-                new Thread(() -> {
-                    boolean running = true;
-                    while (running) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            info("got interrupted");
-                        }
-                        info("1");
-                        if (isBaritoneNotWalking()) {
-                            info("reached goal, stoping check");
-                            baritone.getPathingBehavior().cancelEverything();
-                            info("Started chest method");
-                            baritoneEng.openChest(chestsIN.getFirst());
-                            running = false;
-                        }
+    private void scanChests() {
+        if (scanChests) {
+            new Thread(() -> {
+                for (BetterBlockPos chest : chestsIN) {
+                    try {
+                        info("Thread launched, waiting for navigateto to finish player feet");
+                        BaritoneAPI.getSettings().allowBreak.value = false;
+                        getToBlockPathing.getToBlockPos(chest);
+                        Thread t = new Thread(() -> {
+                            boolean running = true;
+                            while (running) {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                    info("got interrupted");
+                                }
+                                info("1");
+                                if (isBaritoneNotWalking()) {
+                                    info("reached goal, stoping check");
+                                    baritone.getPathingBehavior().cancelEverything();
+                                    info("Started chest method");
+                                    if (baritoneEng.openChest(chest)) {
+                                        baritoneEng.closeChest();
+                                        running = false;
+                                    } else {
+                                        getToBlockPathing.resetMovement();
+                                        boolean running1 = true;
+                                        while (running1) {
+                                            try {
+                                                Thread.sleep(1000);
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                            if (isBaritoneNotWalking()) {
+                                                getToBlockPathing.getToBlockPos(chest);
+                                                running1 = false;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            BaritoneAPI.getSettings().allowBreak.reset();
+                            baritone.getInputOverrideHandler().clearAllKeys();
+                        });
+                        t.start();
+                        t.join();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        info("Invalidi, delaite chto govoriat");
                     }
-                    BaritoneAPI.getSettings().allowBreak.reset();
-                    baritone.getInputOverrideHandler().clearAllKeys();
-                }).start();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            startMovement = false;
+                }
+            }).start();
+            scanChests = false;
         }
     }
 
@@ -253,11 +270,16 @@ public class ChestSorter extends Module {
 
         // Clear buttons
         WHorizontalList hl = theme.horizontalList();
+        WHorizontalList hl2 = theme.horizontalList();
         WButton clear = hl.add(theme.button("Clear Selection")).widget();
-        WButton start = hl.add(theme.button("Start")).widget();
+        WButton scan = hl.add(theme.button("Scan")).widget();
         WButton toggleSelection = hl.add(theme.button("Toggle IN/OUT Selection")).widget();
 
+        hl2.add(theme.label("Last saved: " + System.currentTimeMillis())).widget();
+
+
         list.add(hl);
+        list.add(hl2);
 
         WTable table = new WTable();
         if (!chests.isEmpty()) list.add(table);
@@ -267,9 +289,9 @@ public class ChestSorter extends Module {
             table.clear();
         };
 
-        start.action = () -> {
-            startMovement = true;
-            info("Start Button clicked with value: " + startMovement);
+        scan.action = () -> {
+            scanChests = true;
+            info("Start Button clicked with value: " + scanChests);
         };
 
         toggleSelection.action = this::toggleSelections;
@@ -301,7 +323,7 @@ public class ChestSorter extends Module {
 
     @EventHandler
     private void onRender3D(Render3DEvent event) {
-        startMovement();
+        scanChests();
         if (status == Status.SEL_START || status == Status.SEL_END || isActive()) {
             if (!(mc.crosshairTarget instanceof BlockHitResult result)) return;
             event.renderer.box(result.getBlockPos(), sideColor.get(), lineColor.get(), shapeMode.get(), 0);
