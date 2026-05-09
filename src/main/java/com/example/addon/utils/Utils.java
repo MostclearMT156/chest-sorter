@@ -5,7 +5,7 @@
 
 package com.example.addon.utils;
 
-import com.mojang.blaze3d.systems.ProjectionType;
+//import com.mojang.blaze3d.systems.ProjectionType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.DataResult;
 import it.unimi.dsi.fastutil.objects.*;
@@ -36,17 +36,17 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
-import net.minecraft.client.render.ProjectionMatrix2;
+//import net.minecraft.client.render.ProjectionMatrix2;
 import net.minecraft.client.resource.ResourceReloadLogger;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
+//import net.minecraft.component.ComponentMap;
+//import net.minecraft.component.DataComponentTypes;
+//import net.minecraft.component.type.ItemEnchantmentsComponent;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.TypedEntityData;
+//import net.minecraft.entity.TypedEntityData;
 import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.inventory.StackWithSlot;
+//import net.minecraft.inventory.StackWithSlot;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -85,7 +85,7 @@ public class Utils {
     public static double frameTime;
     public static Screen screenToOpen;
 
-    private static final ProjectionMatrix2 matrix = new ProjectionMatrix2("meteor-projection-matrix", -10, 100, true);
+//    private static final ProjectionMatrix2 matrix = new ProjectionMatrix2("meteor-projection-matrix", -10, 100, true);
 
     private Utils() {
     }
@@ -103,26 +103,26 @@ public class Utils {
         }
     }
 
-    public static Vec3d getPlayerSpeed() {
-        if (mc.player == null) return Vec3d.ZERO;
-
-        double tX = mc.player.getX() - mc.player.lastX;
-        double tY = mc.player.getY() - mc.player.lastY;
-        double tZ = mc.player.getZ() - mc.player.lastZ;
-
-        Timer timer = Modules.get().get(Timer.class);
-        if (timer.isActive()) {
-            tX *= timer.getMultiplier();
-            tY *= timer.getMultiplier();
-            tZ *= timer.getMultiplier();
-        }
-
-        tX *= 20;
-        tY *= 20;
-        tZ *= 20;
-
-        return new Vec3d(tX, tY, tZ);
-    }
+//    public static Vec3d getPlayerSpeed() {
+//        if (mc.player == null) return Vec3d.ZERO;
+//
+//        double tX = mc.player.getX() - mc.player.lastX;
+//        double tY = mc.player.getY() - mc.player.lastY;
+//        double tZ = mc.player.getZ() - mc.player.lastZ;
+//
+//        Timer timer = Modules.get().get(Timer.class);
+//        if (timer.isActive()) {
+//            tX *= timer.getMultiplier();
+//            tY *= timer.getMultiplier();
+//            tZ *= timer.getMultiplier();
+//        }
+//
+//        tX *= 20;
+//        tY *= 20;
+//        tZ *= 20;
+//
+//        return new Vec3d(tX, tY, tZ);
+//    }
 
     public static String getWorldTime() {
         if (mc.world == null) return "00:00";
@@ -146,26 +146,26 @@ public class Utils {
         return BlockEntityIterator::new;
     }
 
-    public static void getEnchantments(ItemStack itemStack, Object2IntMap<RegistryEntry<Enchantment>> enchantments) {
-        enchantments.clear();
+//    public static void getEnchantments(ItemStack itemStack, Object2IntMap<RegistryEntry<Enchantment>> enchantments) {
+//        enchantments.clear();
+//
+//        if (!itemStack.isEmpty()) {
+//            Set<Object2IntMap.Entry<RegistryEntry<Enchantment>>> itemEnchantments = itemStack.getItem() == Items.ENCHANTED_BOOK
+//                ? itemStack.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT).getEnchantmentEntries()
+//                : itemStack.getEnchantments().getEnchantmentEntries();
+//
+//            for (Object2IntMap.Entry<RegistryEntry<Enchantment>> entry : itemEnchantments) {
+//                enchantments.put(entry.getKey(), entry.getIntValue());
+//            }
+//        }
+//    }
 
-        if (!itemStack.isEmpty()) {
-            Set<Object2IntMap.Entry<RegistryEntry<Enchantment>>> itemEnchantments = itemStack.getItem() == Items.ENCHANTED_BOOK
-                ? itemStack.getOrDefault(DataComponentTypes.STORED_ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT).getEnchantmentEntries()
-                : itemStack.getEnchantments().getEnchantmentEntries();
-
-            for (Object2IntMap.Entry<RegistryEntry<Enchantment>> entry : itemEnchantments) {
-                enchantments.put(entry.getKey(), entry.getIntValue());
-            }
-        }
-    }
-
-    public static int getEnchantmentLevel(ItemStack itemStack, RegistryKey<Enchantment> enchantment) {
-        if (itemStack.isEmpty()) return 0;
-        Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments = new Object2IntArrayMap<>();
-        getEnchantments(itemStack, itemEnchantments);
-        return getEnchantmentLevel(itemEnchantments, enchantment);
-    }
+//    public static int getEnchantmentLevel(ItemStack itemStack, RegistryKey<Enchantment> enchantment) {
+//        if (itemStack.isEmpty()) return 0;
+//        Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments = new Object2IntArrayMap<>();
+//        getEnchantments(itemStack, itemEnchantments);
+//        return getEnchantmentLevel(itemEnchantments, enchantment);
+//    }
 
     public static int getEnchantmentLevel(Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments, RegistryKey<Enchantment> enchantment) {
         for (Object2IntMap.Entry<RegistryEntry<Enchantment>> entry : Object2IntMaps.fastIterable(itemEnchantments)) {
@@ -174,24 +174,24 @@ public class Utils {
         return 0;
     }
 
-    @SafeVarargs
-    public static boolean hasEnchantments(ItemStack itemStack, RegistryKey<Enchantment>... enchantments) {
-        if (itemStack.isEmpty()) return false;
-        Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments = new Object2IntArrayMap<>();
-        getEnchantments(itemStack, itemEnchantments);
+//    @SafeVarargs
+//    public static boolean hasEnchantments(ItemStack itemStack, RegistryKey<Enchantment>... enchantments) {
+//        if (itemStack.isEmpty()) return false;
+//        Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments = new Object2IntArrayMap<>();
+//        getEnchantments(itemStack, itemEnchantments);
+//
+//        for (RegistryKey<Enchantment> enchantment : enchantments) {
+//            if (!hasEnchantment(itemEnchantments, enchantment)) return false;
+//        }
+//        return true;
+//    }
 
-        for (RegistryKey<Enchantment> enchantment : enchantments) {
-            if (!hasEnchantment(itemEnchantments, enchantment)) return false;
-        }
-        return true;
-    }
-
-    public static boolean hasEnchantment(ItemStack itemStack, RegistryKey<Enchantment> enchantmentKey) {
-        if (itemStack.isEmpty()) return false;
-        Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments = new Object2IntArrayMap<>();
-        getEnchantments(itemStack, itemEnchantments);
-        return hasEnchantment(itemEnchantments, enchantmentKey);
-    }
+//    public static boolean hasEnchantment(ItemStack itemStack, RegistryKey<Enchantment> enchantmentKey) {
+//        if (itemStack.isEmpty()) return false;
+//        Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments = new Object2IntArrayMap<>();
+//        getEnchantments(itemStack, itemEnchantments);
+//        return hasEnchantment(itemEnchantments, enchantmentKey);
+//    }
 
     private static boolean hasEnchantment(Object2IntMap<RegistryEntry<Enchantment>> itemEnchantments, RegistryKey<Enchantment> enchantmentKey) {
         for (RegistryEntry<Enchantment> enchantment : itemEnchantments.keySet()) {
@@ -200,9 +200,9 @@ public class Utils {
         return false;
     }
 
-    public static int getRenderDistance() {
-        return Math.max(mc.options.getViewDistance().getValue(), ((ClientPlayNetworkHandlerAccessor) mc.getNetworkHandler()).meteor$getChunkLoadDistance());
-    }
+//    public static int getRenderDistance() {
+//        return Math.max(mc.options.getViewDistance().getValue(), ((ClientPlayNetworkHandlerAccessor) mc.getNetworkHandler()).meteor$getChunkLoadDistance());
+//    }
 
     public static int getWindowWidth() {
         return mc.getWindow().getFramebufferWidth();
@@ -212,118 +212,118 @@ public class Utils {
         return mc.getWindow().getFramebufferHeight();
     }
 
-    public static void unscaledProjection() {
-        float width = mc.getWindow().getFramebufferWidth();
-        float height = mc.getWindow().getFramebufferHeight();
+//    public static void unscaledProjection() {
+//        float width = mc.getWindow().getFramebufferWidth();
+//        float height = mc.getWindow().getFramebufferHeight();
+//
+//        RenderSystem.setProjectionMatrix(matrix.set(width, height), ProjectionType.ORTHOGRAPHIC);
+//        RenderUtils.projection.set(((ProjectionMatrix2Accessor) matrix).meteor$callGetMatrix(width, height));
+//
+//        rendering3D = false;
+//    }
 
-        RenderSystem.setProjectionMatrix(matrix.set(width, height), ProjectionType.ORTHOGRAPHIC);
-        RenderUtils.projection.set(((ProjectionMatrix2Accessor) matrix).meteor$callGetMatrix(width, height));
-
-        rendering3D = false;
-    }
-
-    public static void scaledProjection() {
-        float width = (float) (mc.getWindow().getFramebufferWidth() / mc.getWindow().getScaleFactor());
-        float height = (float) (mc.getWindow().getFramebufferHeight() / mc.getWindow().getScaleFactor());
-
-        RenderSystem.setProjectionMatrix(matrix.set(width, height), ProjectionType.PERSPECTIVE);
-        RenderUtils.projection.set(((ProjectionMatrix2Accessor) matrix).meteor$callGetMatrix(width, height));
-
-        rendering3D = true;
-    }
+//    public static void scaledProjection() {
+//        float width = (float) (mc.getWindow().getFramebufferWidth() / mc.getWindow().getScaleFactor());
+//        float height = (float) (mc.getWindow().getFramebufferHeight() / mc.getWindow().getScaleFactor());
+//
+//        RenderSystem.setProjectionMatrix(matrix.set(width, height), ProjectionType.PERSPECTIVE);
+//        RenderUtils.projection.set(((ProjectionMatrix2Accessor) matrix).meteor$callGetMatrix(width, height));
+//
+//        rendering3D = true;
+//    }
 
     public static Vec3d vec3d(BlockPos pos) {
         return new Vec3d(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public static boolean openContainer(ItemStack itemStack, ItemStack[] contents, boolean pause) {
-        if (hasItems(itemStack) || itemStack.getItem() == Items.ENDER_CHEST) {
-            Utils.getItemsInContainerItem(itemStack, contents);
-            if (pause) screenToOpen = new PeekScreen(itemStack, contents);
-            else mc.setScreen(new PeekScreen(itemStack, contents));
-            return true;
-        }
+//    public static boolean openContainer(ItemStack itemStack, ItemStack[] contents, boolean pause) {
+//        if (hasItems(itemStack) || itemStack.getItem() == Items.ENDER_CHEST) {
+//            Utils.getItemsInContainerItem(itemStack, contents);
+//            if (pause) screenToOpen = new PeekScreen(itemStack, contents);
+//            else mc.setScreen(new PeekScreen(itemStack, contents));
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
-        return false;
-    }
+//    public static void getItemsInContainerItem(ItemStack itemStack, ItemStack[] items) {
+//        if (itemStack.getItem() == Items.ENDER_CHEST) {
+//            for (int i = 0; i < EChestMemory.ITEMS.size(); i++) {
+//                items[i] = EChestMemory.ITEMS.get(i);
+//            }
+//
+//            return;
+//        }
+//
+//        Arrays.fill(items, ItemStack.EMPTY);
+//        ComponentMap components = itemStack.getComponents();
+//
+//        if (components.contains(DataComponentTypes.CONTAINER)) {
+//            ContainerComponentAccessor container = ((ContainerComponentAccessor) (Object) components.get(DataComponentTypes.CONTAINER));
+//            DefaultedList<ItemStack> stacks = container.meteor$getStacks();
+//
+//            for (int i = 0; i < stacks.size(); i++) {
+//                if (i >= 0 && i < items.length) items[i] = stacks.get(i);
+//            }
+//        }
+//        else if (components.contains(DataComponentTypes.BLOCK_ENTITY_DATA)) {
+//            TypedEntityData<BlockEntityType<?>> blockEntityData = components.get(DataComponentTypes.BLOCK_ENTITY_DATA);
+//            if (blockEntityData == null) return;
+//            NbtList nbt3 = blockEntityData.copyNbtWithoutId().getListOrEmpty("Items");
+//
+//            for (int i = 0; i < nbt3.size(); i++) {
+//                Optional<NbtCompound> compound = nbt3.getCompound(i);
+//                if (compound.isEmpty()) continue;
+//
+//                Optional<Byte> slot = compound.get().getByte("Slot"); // Apparently shulker boxes can store more than 27 items, good job Mojang
+//                if (slot.isEmpty()) continue;
+//
+//                // now NPEs when mc.world == null
+//                if (slot.get() >= 0 && slot.get() < items.length) {
+//                    switch (StackWithSlot.CODEC.parse(mc.player.getRegistryManager().getOps(NbtOps.INSTANCE), compound.get())) {
+//                        case DataResult.Success<StackWithSlot> success -> items[slot.get()] = success.value().stack();
+//                        case DataResult.Error<StackWithSlot> ignored -> items[slot.get()] = ItemStack.EMPTY;
+//                        default -> throw new MatchException(null, null);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-    public static void getItemsInContainerItem(ItemStack itemStack, ItemStack[] items) {
-        if (itemStack.getItem() == Items.ENDER_CHEST) {
-            for (int i = 0; i < EChestMemory.ITEMS.size(); i++) {
-                items[i] = EChestMemory.ITEMS.get(i);
-            }
-
-            return;
-        }
-
-        Arrays.fill(items, ItemStack.EMPTY);
-        ComponentMap components = itemStack.getComponents();
-
-        if (components.contains(DataComponentTypes.CONTAINER)) {
-            ContainerComponentAccessor container = ((ContainerComponentAccessor) (Object) components.get(DataComponentTypes.CONTAINER));
-            DefaultedList<ItemStack> stacks = container.meteor$getStacks();
-
-            for (int i = 0; i < stacks.size(); i++) {
-                if (i >= 0 && i < items.length) items[i] = stacks.get(i);
-            }
-        }
-        else if (components.contains(DataComponentTypes.BLOCK_ENTITY_DATA)) {
-            TypedEntityData<BlockEntityType<?>> blockEntityData = components.get(DataComponentTypes.BLOCK_ENTITY_DATA);
-            if (blockEntityData == null) return;
-            NbtList nbt3 = blockEntityData.copyNbtWithoutId().getListOrEmpty("Items");
-
-            for (int i = 0; i < nbt3.size(); i++) {
-                Optional<NbtCompound> compound = nbt3.getCompound(i);
-                if (compound.isEmpty()) continue;
-
-                Optional<Byte> slot = compound.get().getByte("Slot"); // Apparently shulker boxes can store more than 27 items, good job Mojang
-                if (slot.isEmpty()) continue;
-
-                // now NPEs when mc.world == null
-                if (slot.get() >= 0 && slot.get() < items.length) {
-                    switch (StackWithSlot.CODEC.parse(mc.player.getRegistryManager().getOps(NbtOps.INSTANCE), compound.get())) {
-                        case DataResult.Success<StackWithSlot> success -> items[slot.get()] = success.value().stack();
-                        case DataResult.Error<StackWithSlot> ignored -> items[slot.get()] = ItemStack.EMPTY;
-                        default -> throw new MatchException(null, null);
-                    }
-                }
-            }
-        }
-    }
-
-    public static Color getShulkerColor(ItemStack shulkerItem) {
-        if (shulkerItem.getItem() instanceof BlockItem blockItem) {
-            Block block = blockItem.getBlock();
-            if (block == Blocks.ENDER_CHEST) return BetterTooltips.ECHEST_COLOR;
-
-            if (block instanceof ShulkerBoxBlock shulkerBlock) {
-                DyeColor dye = shulkerBlock.getColor();
-                if (dye == null) return WHITE;
-
-                final int color = dye.getEntityColor();
-                return new Color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 255);
-            }
-        }
-
-        return WHITE;
-    }
-
-    public static boolean hasItems(ItemStack itemStack) {
-        ContainerComponentAccessor container = ((ContainerComponentAccessor) (Object) itemStack.get(DataComponentTypes.CONTAINER));
-        if (container != null && !container.meteor$getStacks().isEmpty()) return true;
-
-        TypedEntityData<BlockEntityType<?>> blockEntityData = itemStack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
-        return blockEntityData != null && blockEntityData.contains("Items");
-    }
+//    public static Color getShulkerColor(ItemStack shulkerItem) {
+//        if (shulkerItem.getItem() instanceof BlockItem blockItem) {
+//            Block block = blockItem.getBlock();
+//            if (block == Blocks.ENDER_CHEST) return BetterTooltips.ECHEST_COLOR;
+//
+//            if (block instanceof ShulkerBoxBlock shulkerBlock) {
+//                DyeColor dye = shulkerBlock.getColor();
+//                if (dye == null) return WHITE;
+//
+//                final int color = dye.getEntityColor();
+//                return new Color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 255);
+//            }
+//        }
+//
+//        return WHITE;
+//    }
+//
+//    public static boolean hasItems(ItemStack itemStack) {
+//        ContainerComponentAccessor container = ((ContainerComponentAccessor) (Object) itemStack.get(DataComponentTypes.CONTAINER));
+//        if (container != null && !container.meteor$getStacks().isEmpty()) return true;
+//
+//        TypedEntityData<BlockEntityType<?>> blockEntityData = itemStack.get(DataComponentTypes.BLOCK_ENTITY_DATA);
+//        return blockEntityData != null && blockEntityData.contains("Items");
+//    }
 
     public static Reference2IntMap<StatusEffect> createStatusEffectMap() {
         return new Reference2IntArrayMap<>(StatusEffectAmplifierMapSetting.EMPTY_STATUS_EFFECT_MAP);
     }
-
-    public static String getEnchantSimpleName(RegistryEntry<Enchantment> enchantment, int length) {
-        String name = Names.get(enchantment);
-        return name.length() > length ? name.substring(0, length) : name;
-    }
+//
+//    public static String getEnchantSimpleName(RegistryEntry<Enchantment> enchantment, int length) {
+//        String name = Names.get(enchantment);
+//        return name.length() > length ? name.substring(0, length) : name;
+//    }
 
     public static boolean searchTextDefault(String text, String filter, boolean caseSensitive) {
         return searchInWords(text, filter) > 0 || searchLevenshteinDefault(text, filter, caseSensitive) < text.length() / 2;
@@ -393,33 +393,33 @@ public class Utils {
         return Math.sqrt(dX * dX + dY * dY + dZ * dZ);
     }
 
-    public static String getFileWorldName() {
-        return FILE_NAME_INVALID_CHARS_PATTERN.matcher(getWorldName()).replaceAll("_");
-    }
+//    public static String getFileWorldName() {
+//        return FILE_NAME_INVALID_CHARS_PATTERN.matcher(getWorldName()).replaceAll("_");
+//    }
 
-    /**
-     * Use {@link Utils#getFileWorldName()} if you are using the world name as a file/directory name
-     */
-    public static String getWorldName() {
-        // Singleplayer
-        if (mc.isInSingleplayer()) {
-            if (mc.world == null) return "";
-            if (mc.getServer() == null) return "FAILED_BECAUSE_LEFT_WORLD";
-
-            File folder = ((MinecraftServerAccessor) mc.getServer()).meteor$getSession().getWorldDirectory(mc.world.getRegistryKey()).toFile();
-            if (folder.toPath().relativize(mc.runDirectory.toPath()).getNameCount() != 2) {
-                folder = folder.getParentFile();
-            }
-            return folder.getName();
-        }
-
-        // Multiplayer
-        if (mc.getCurrentServerEntry() != null) {
-            return mc.getCurrentServerEntry().isRealm() ? "realms" : mc.getCurrentServerEntry().address;
-        }
-
-        return "";
-    }
+//    /**
+//     * Use {@link Utils#getFileWorldName()} if you are using the world name as a file/directory name
+//     */
+//    public static String getWorldName() {
+//        // Singleplayer
+//        if (mc.isInSingleplayer()) {
+//            if (mc.world == null) return "";
+//            if (mc.getServer() == null) return "FAILED_BECAUSE_LEFT_WORLD";
+//
+//            File folder = ((MinecraftServerAccessor) mc.getServer()).meteor$getSession().getWorldDirectory(mc.world.getRegistryKey()).toFile();
+//            if (folder.toPath().relativize(mc.runDirectory.toPath()).getNameCount() != 2) {
+//                folder = folder.getParentFile();
+//            }
+//            return folder.getName();
+//        }
+//
+//        // Multiplayer
+//        if (mc.getCurrentServerEntry() != null) {
+//            return mc.getCurrentServerEntry().isRealm() ? "realms" : mc.getCurrentServerEntry().address;
+//        }
+//
+//        return "";
+//    }
 
     public static String nameToTitle(String name) {
         return Arrays.stream(name.split("-")).map(StringUtils::capitalize).collect(Collectors.joining(" "));
@@ -541,119 +541,119 @@ public class Utils {
         return min + (max - min) * random.nextDouble();
     }
 
-    public static void leftClick() {
-        // check if a screen is open
-        // see net.minecraft.client.Mouse.lockCursor
-        // see net.minecraft.client.MinecraftClient.tick
-        int attackCooldown = ((MinecraftClientAccessor) mc).meteor$getAttackCooldown();
-        if (attackCooldown == 10000) {
-            ((MinecraftClientAccessor) mc).meteor$setAttackCooldown(0);
-        }
-
-        mc.options.attackKey.setPressed(true);
-        ((MinecraftClientAccessor) mc).meteor$leftClick();
-        mc.options.attackKey.setPressed(false);
-    }
-
-    public static void rightClick() {
-        ((IMinecraftClient) mc).meteor$rightClick();
-    }
-
-    public static boolean isShulker(Item item) {
-        return item == Items.SHULKER_BOX || item == Items.WHITE_SHULKER_BOX || item == Items.ORANGE_SHULKER_BOX || item == Items.MAGENTA_SHULKER_BOX || item == Items.LIGHT_BLUE_SHULKER_BOX || item == Items.YELLOW_SHULKER_BOX || item == Items.LIME_SHULKER_BOX || item == Items.PINK_SHULKER_BOX || item == Items.GRAY_SHULKER_BOX || item == Items.LIGHT_GRAY_SHULKER_BOX || item == Items.CYAN_SHULKER_BOX || item == Items.PURPLE_SHULKER_BOX || item == Items.BLUE_SHULKER_BOX || item == Items.BROWN_SHULKER_BOX || item == Items.GREEN_SHULKER_BOX || item == Items.RED_SHULKER_BOX || item == Items.BLACK_SHULKER_BOX;
-    }
-
-    public static boolean isThrowable(Item item) {
-        return item instanceof ExperienceBottleItem || item instanceof BowItem || item instanceof CrossbowItem || item instanceof SnowballItem || item instanceof EggItem || item instanceof EnderPearlItem || item instanceof SplashPotionItem || item instanceof LingeringPotionItem || item instanceof FishingRodItem || item instanceof TridentItem;
-    }
-
-    public static void addEnchantment(ItemStack itemStack, RegistryEntry<Enchantment> enchantment, int level) {
-        ItemEnchantmentsComponent.Builder b = new ItemEnchantmentsComponent.Builder(EnchantmentHelper.getEnchantments(itemStack));
-        b.add(enchantment, level);
-
-        EnchantmentHelper.set(itemStack, b.build());
-    }
-
-    public static void clearEnchantments(ItemStack itemStack) {
-        EnchantmentHelper.apply(itemStack, components -> components.remove(a -> true));
-    }
-
-    public static void removeEnchantment(ItemStack itemStack, Enchantment enchantment) {
-        EnchantmentHelper.apply(itemStack, components -> components.remove(enchantment1 -> enchantment1.value().equals(enchantment)));
-    }
-
-    public static Color lerp(Color first, Color second, @Range(from = 0, to = 1) float v) {
-        return new Color(
-            (int) (first.r * (1 - v) + second.r * v),
-            (int) (first.g * (1 - v) + second.g * v),
-            (int) (first.b * (1 - v) + second.b * v)
-        );
-    }
-
-//    public static boolean isLoading() {
-//        ResourceReloadLogger.ReloadState state = ((ResourceReloadLoggerAccessor) ((MinecraftClientAccessor) mc).meteor$getResourceReloadLogger()).meteor$getReloadState();
-//        return state == null || !((ReloadStateAccessor) state).meteor$isFinished();
+//    public static void leftClick() {
+//        // check if a screen is open
+//        // see net.minecraft.client.Mouse.lockCursor
+//        // see net.minecraft.client.MinecraftClient.tick
+//        int attackCooldown = ((MinecraftClientAccessor) mc).meteor$getAttackCooldown();
+//        if (attackCooldown == 10000) {
+//            ((MinecraftClientAccessor) mc).meteor$setAttackCooldown(0);
+//        }
+//
+//        mc.options.attackKey.setPressed(true);
+//        ((MinecraftClientAccessor) mc).meteor$leftClick();
+//        mc.options.attackKey.setPressed(false);
 //    }
-
-    public static int parsePort(String full) {
-        if (full == null || full.isBlank() || !full.contains(":")) return -1;
-
-        int port;
-
-        try {
-            port = Integer.parseInt(full.substring(full.lastIndexOf(':') + 1, full.length() - 1));
-        } catch (NumberFormatException ignored) {
-            port = -1;
-        }
-
-        return port;
-    }
-
-    public static String parseAddress(String full) {
-        if (full == null || full.isBlank() || !full.contains(":")) return full;
-        return full.substring(0, full.lastIndexOf(':'));
-    }
-
-    public static boolean resolveAddress(String address) {
-        if (address == null || address.isBlank()) return false;
-
-        int port = parsePort(address);
-        if (port == -1) port = 25565;
-        else address = parseAddress(address);
-
-        return resolveAddress(address, port);
-    }
-
-    public static boolean resolveAddress(String address, int port) {
-        if (port <= 0 || port > 65535 || address == null || address.isBlank()) return false;
-        InetSocketAddress socketAddress = new InetSocketAddress(address, port);
-        return !socketAddress.isUnresolved();
-    }
-
-    public static Vector3d set(Vector3d vec, Vec3d v) {
-        vec.x = v.x;
-        vec.y = v.y;
-        vec.z = v.z;
-
-        return vec;
-    }
-
-    public static Vector3d set(Vector3d vec, Entity entity, double tickDelta) {
-        vec.x = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX());
-        vec.y = MathHelper.lerp(tickDelta, entity.lastRenderY, entity.getY());
-        vec.z = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ());
-
-        return vec;
-    }
-
-    // Filters
-
-    public static boolean nameFilter(String text, char character) {
-        return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') || (character >= '0' && character <= '9') || character == '_' || character == '-' || character == '.' || character == ' ';
-    }
-
-    public static boolean ipFilter(String text, char character) {
-        if (text.contains(":") && character == ':') return false;
-        return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') || (character >= '0' && character <= '9') || character == '.' || character == '-' || character == ':';
-    }
+//
+//    public static void rightClick() {
+//        ((IMinecraftClient) mc).meteor$rightClick();
+//    }
+//
+//    public static boolean isShulker(Item item) {
+//        return item == Items.SHULKER_BOX || item == Items.WHITE_SHULKER_BOX || item == Items.ORANGE_SHULKER_BOX || item == Items.MAGENTA_SHULKER_BOX || item == Items.LIGHT_BLUE_SHULKER_BOX || item == Items.YELLOW_SHULKER_BOX || item == Items.LIME_SHULKER_BOX || item == Items.PINK_SHULKER_BOX || item == Items.GRAY_SHULKER_BOX || item == Items.LIGHT_GRAY_SHULKER_BOX || item == Items.CYAN_SHULKER_BOX || item == Items.PURPLE_SHULKER_BOX || item == Items.BLUE_SHULKER_BOX || item == Items.BROWN_SHULKER_BOX || item == Items.GREEN_SHULKER_BOX || item == Items.RED_SHULKER_BOX || item == Items.BLACK_SHULKER_BOX;
+//    }
+//
+//    public static boolean isThrowable(Item item) {
+//        return item instanceof ExperienceBottleItem || item instanceof BowItem || item instanceof CrossbowItem || item instanceof SnowballItem || item instanceof EggItem || item instanceof EnderPearlItem || item instanceof SplashPotionItem || item instanceof LingeringPotionItem || item instanceof FishingRodItem || item instanceof TridentItem;
+//    }
+//
+//    public static void addEnchantment(ItemStack itemStack, RegistryEntry<Enchantment> enchantment, int level) {
+//        ItemEnchantmentsComponent.Builder b = new ItemEnchantmentsComponent.Builder(EnchantmentHelper.getEnchantments(itemStack));
+//        b.add(enchantment, level);
+//
+//        EnchantmentHelper.set(itemStack, b.build());
+//    }
+//
+//    public static void clearEnchantments(ItemStack itemStack) {
+//        EnchantmentHelper.apply(itemStack, components -> components.remove(a -> true));
+//    }
+//
+//    public static void removeEnchantment(ItemStack itemStack, Enchantment enchantment) {
+//        EnchantmentHelper.apply(itemStack, components -> components.remove(enchantment1 -> enchantment1.value().equals(enchantment)));
+//    }
+//
+//    public static Color lerp(Color first, Color second, @Range(from = 0, to = 1) float v) {
+//        return new Color(
+//            (int) (first.r * (1 - v) + second.r * v),
+//            (int) (first.g * (1 - v) + second.g * v),
+//            (int) (first.b * (1 - v) + second.b * v)
+//        );
+//    }
+//
+////    public static boolean isLoading() {
+////        ResourceReloadLogger.ReloadState state = ((ResourceReloadLoggerAccessor) ((MinecraftClientAccessor) mc).meteor$getResourceReloadLogger()).meteor$getReloadState();
+////        return state == null || !((ReloadStateAccessor) state).meteor$isFinished();
+////    }
+//
+//    public static int parsePort(String full) {
+//        if (full == null || full.isBlank() || !full.contains(":")) return -1;
+//
+//        int port;
+//
+//        try {
+//            port = Integer.parseInt(full.substring(full.lastIndexOf(':') + 1, full.length() - 1));
+//        } catch (NumberFormatException ignored) {
+//            port = -1;
+//        }
+//
+//        return port;
+//    }
+//
+//    public static String parseAddress(String full) {
+//        if (full == null || full.isBlank() || !full.contains(":")) return full;
+//        return full.substring(0, full.lastIndexOf(':'));
+//    }
+//
+//    public static boolean resolveAddress(String address) {
+//        if (address == null || address.isBlank()) return false;
+//
+//        int port = parsePort(address);
+//        if (port == -1) port = 25565;
+//        else address = parseAddress(address);
+//
+//        return resolveAddress(address, port);
+//    }
+//
+//    public static boolean resolveAddress(String address, int port) {
+//        if (port <= 0 || port > 65535 || address == null || address.isBlank()) return false;
+//        InetSocketAddress socketAddress = new InetSocketAddress(address, port);
+//        return !socketAddress.isUnresolved();
+//    }
+//
+//    public static Vector3d set(Vector3d vec, Vec3d v) {
+//        vec.x = v.x;
+//        vec.y = v.y;
+//        vec.z = v.z;
+//
+//        return vec;
+//    }
+//
+//    public static Vector3d set(Vector3d vec, Entity entity, double tickDelta) {
+//        vec.x = MathHelper.lerp(tickDelta, entity.lastRenderX, entity.getX());
+//        vec.y = MathHelper.lerp(tickDelta, entity.lastRenderY, entity.getY());
+//        vec.z = MathHelper.lerp(tickDelta, entity.lastRenderZ, entity.getZ());
+//
+//        return vec;
+//    }
+//
+//    // Filters
+//
+//    public static boolean nameFilter(String text, char character) {
+//        return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') || (character >= '0' && character <= '9') || character == '_' || character == '-' || character == '.' || character == ' ';
+//    }
+//
+//    public static boolean ipFilter(String text, char character) {
+//        if (text.contains(":") && character == ':') return false;
+//        return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') || (character >= '0' && character <= '9') || character == '.' || character == '-' || character == ':';
+//    }
 }

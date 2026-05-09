@@ -1,19 +1,19 @@
 [versions]
-mod-version = "0.1.0"
+mod-version = "0.1.20.4.0"
 
 # Fabric (https://fabricmc.net/develop)
-minecraft = "1.21.11"
-yarn-mappings = "1.21.11+build.3"
-fabric-loader = "0.18.2"
+minecraft = "1.20.4"
+yarn-mappings = "1.20.4+build.3"
+fabric-loader = "0.16.2"
 
 # Loom (https://github.com/FabricMC/fabric-loom)
 loom = "1.14-SNAPSHOT"
 
 # Meteor (https://github.com/MeteorDevelopment/meteor-client/)
-meteor = "1.21.11-SNAPSHOT"
+meteor = "1.20.4-SNAPSHOT"
 
 # Baritone (https://github.com/MeteorDevelopment/baritone)
-baritone = "1.21.10-SNAPSHOT"
+baritone = "1.20.4-SNAPSHOT"
 
 # Mods
 

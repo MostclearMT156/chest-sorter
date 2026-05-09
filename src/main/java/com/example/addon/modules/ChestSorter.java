@@ -15,7 +15,7 @@ import com.example.addon.AddonTemplate;
 import com.example.addon.baritone.BaritoneController;
 import com.example.addon.baritone.GetToBlockPathing;
 import meteordevelopment.meteorclient.events.meteor.KeyEvent;
-import meteordevelopment.meteorclient.events.meteor.MouseClickEvent;
+import meteordevelopment.meteorclient.events.meteor.MouseButtonEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.widgets.WLabel;
@@ -248,7 +248,7 @@ public class ChestSorter extends Module {
     }
 
     @EventHandler
-    private void onMouseClick(MouseClickEvent event) {
+    private void onMouseClick(MouseButtonEvent event) {
         if (event.action != KeyAction.Press || !selectionBind.get().isPressed() || mc.currentScreen != null) {
             return;
         }

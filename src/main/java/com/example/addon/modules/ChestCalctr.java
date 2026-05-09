@@ -13,7 +13,7 @@ import baritone.api.utils.BetterBlockPos;
 import com.example.addon.AddonTemplate;
 import com.example.addon.utils.SelScanner;
 import meteordevelopment.meteorclient.events.meteor.KeyEvent;
-import meteordevelopment.meteorclient.events.meteor.MouseClickEvent;
+import meteordevelopment.meteorclient.events.meteor.MouseButtonEvent;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.gui.widgets.containers.WHorizontalList;
@@ -100,7 +100,7 @@ public class ChestCalctr extends Module {
     }
 
     @EventHandler
-    private void onMouseClick(MouseClickEvent event) {
+    private void onMouseClick(MouseButtonEvent event) {
         if (event.action != KeyAction.Press || !selectionBind.get().isPressed() || mc.currentScreen != null) {
             return;
         }

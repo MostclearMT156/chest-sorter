@@ -26,7 +26,8 @@ dependencies {
     modImplementation(libs.fabric.loader)
 
     // Meteor
-    modImplementation(libs.meteor.client)
+    //modImplementation(libs.meteor.client)
+    modImplementation("meteordevelopment:meteor-client:0.5.6")
     // Baritone
     modCompileOnly(libs.baritone)
 }

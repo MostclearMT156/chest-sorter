@@ -20,13 +20,15 @@ public class CommandExample extends Command {
     public void build(LiteralArgumentBuilder<CommandSource> builder) {
         builder.executes(context -> {
             info("hi");
-            return SINGLE_SUCCESS;
+//            return SINGLE_SUCCESS;
+            return 0;
         });
 
         builder.then(literal("name").then(argument("nameArgument", StringArgumentType.word()).executes(context -> {
             String argument = StringArgumentType.getString(context, "nameArgument");
             info("hi, " + argument + " от Garlotina chest-sorter");
-            return SINGLE_SUCCESS;
+//            return SINGLE_SUCCESS;
+            return 0;
         })));
     }
 }
