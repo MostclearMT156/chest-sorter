@@ -1,6 +1,7 @@
 package com.example.addon.utils;
 
 import baritone.api.utils.BetterBlockPos;
+import meteordevelopment.meteorclient.MeteorClient;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
@@ -23,6 +24,24 @@ public class SelScanner {
 
     public static int getSingleChests() {
         return singleChests;
+    }
+
+    public static boolean isDBChest(MinecraftClient mc, BlockPos pos){
+        BlockState state = mc.world.getBlockState(pos);
+        if(!(state.getBlock() instanceof ChestBlock)) return false;
+        ChestType type = state.get(ChestBlock.CHEST_TYPE);
+        if(type == ChestType.SINGLE) return false;
+        return true;
+    }
+
+    public static BlockPos getScndHalfOfDBChest(MinecraftClient mc, BlockPos pos) {
+        BlockState state = mc.world.getBlockState(pos);
+        Direction facing = state.get(ChestBlock.FACING);
+        return new BetterBlockPos(
+            pos.getX() + facing.rotateYClockwise().getOffsetX(),
+            pos.getY(),
+            pos.getZ() + facing.rotateYClockwise().getOffsetZ()
+        );
     }
 
     static int doubleChests = 0;
