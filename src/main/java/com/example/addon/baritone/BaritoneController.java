@@ -12,6 +12,7 @@ import baritone.api.utils.RotationUtils;
 import baritone.api.utils.input.Input;
 
 import baritone.utils.player.BaritonePlayerContext;
+import com.example.addon.utils.SelScanner;
 import net.minecraft.block.Block;
 import net.minecraft.block.ChestBlock;
 
@@ -23,6 +24,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
+
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 import java.util.Optional;
@@ -95,6 +97,7 @@ public class BaritoneController {
         // Наводим камеру на сундук
         //lookAt(pos);
         // Кликаем ПКМ
+        if(!rightClick(pos) && SelScanner.isDBChest(mc, pos)) return rightClick(SelScanner.getScndHalfOfDBChest(mc, pos));
         return rightClick(pos);
     }
 
@@ -173,12 +176,12 @@ public class BaritoneController {
         return false;
     }
 
-    public boolean escape(){
+    public boolean escape() {
         mc.currentScreen.close();
         return true;
     }
 
-    public boolean closeChest(){
+    public boolean closeChest() {
         escape();
         return true;
     }
